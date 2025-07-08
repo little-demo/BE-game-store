@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/game_manager"
+    username: root
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  signerKey: "gQU+fw7FRYWvoBVKHAqd0JAeJL4xNg+kiCpehSwMLjxWzvDrkVDk4T307TwlBEkj"
+  valid-duration: 3600 #in seconds
+  refreshable-duration: 36000 #120 seconds
