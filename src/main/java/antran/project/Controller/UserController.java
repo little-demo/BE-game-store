@@ -44,7 +44,6 @@ public class UserController {
                 .filter(user -> user.getRoles().stream()
                         .noneMatch(role -> role.getName().equalsIgnoreCase("ADMIN")))
                 .toList();
-
         return ApiResponse.<List<UserResponse>>builder()
                 .result(filteredUsers)
                 .build();
@@ -80,20 +79,18 @@ public class UserController {
     @GetMapping("/search")
     ApiResponse<List<UserResponse>> searchUsers(
             @RequestParam(required = false) String username,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String role
+            @RequestParam(required = false) String email
     ) {
         // Kiểm tra chỉ có một tiêu chí được truyền vào
         int filterCount = 0;
         if (username != null) filterCount++;
         if (email != null) filterCount++;
-        if (role != null) filterCount++;
 
         if (filterCount != 1) {
             throw new IllegalArgumentException("Please provide exactly one filter: username, email, or role.");
         }
 
-        List<UserResponse> users = userService.searchBySingleCriteria(username, email, role);
+        List<UserResponse> users = userService.searchBySingleCriteria(username, email);
 
         // Lọc bỏ user có role ADMIN
         List<UserResponse> filteredUsers = users.stream()
@@ -106,4 +103,10 @@ public class UserController {
                 .build();
     }
 
+    @PatchMapping("/{userId}/toggle")
+    ApiResponse<UserResponse> toggleUserEnabled(@PathVariable("userId") String userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.changeUserStatus(Long.valueOf(userId)))
+                .build();
+    }
 }

@@ -28,7 +28,8 @@ public class User {
     String last_name;
     LocalDate dob;
     BigDecimal balance = BigDecimal.ZERO;
-    boolean enabled = true;
+    String avatar;
+    Boolean enabled = true;
 
     @ManyToMany
     Set<Role> roles;

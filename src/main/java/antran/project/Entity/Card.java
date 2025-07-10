@@ -21,8 +21,12 @@ public class Card {
     Long id;
     String name;
     String description;
-    String cardType;
+
+    @Enumerated(EnumType.STRING)
+    cardType cardType;
+
     String imageUrl;
+    int mana;
     BigDecimal marketPrice;
 
     @OneToMany(mappedBy = "card")
@@ -33,4 +37,12 @@ public class Card {
 
     @OneToMany(mappedBy = "card")
     List<UserCard> ownedByUsers;
+
+    @OneToMany(mappedBy = "card")
+    List<CardEffectBinding> cardEffectBindings;
+
+    public enum cardType {
+        SPELL,
+        MINION
+    }
 }

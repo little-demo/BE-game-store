@@ -24,4 +24,6 @@ public class UserCard {
     @ManyToOne
     @JoinColumn(name = "card_id", nullable = false)
     Card card;
+
+    int quantity;
 }

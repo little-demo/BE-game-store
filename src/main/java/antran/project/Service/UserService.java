@@ -4,10 +4,11 @@ import antran.project.DTO.Request.UserCreationRequest;
 import antran.project.DTO.Request.UserUpdateRequest;
 import antran.project.DTO.Response.UserResponse;
 import antran.project.Entity.User;
-import antran.project.Enums.Role;
+import antran.project.Entity.Role;
 import antran.project.Exception.AppException;
 import antran.project.Exception.ErrorCode;
 import antran.project.Mapper.UserMapper;
+import antran.project.Repository.RoleRepository;
 import antran.project.Repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +36,7 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
 
     public UserResponse createRequest(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername()))
@@ -41,10 +45,13 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-        //user.setRoles(roles);
+        // Set default role
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
+        Set<Role> roles = new HashSet<>();
+        roles.add(userRole);
+        user.setRoles(roles);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -76,6 +83,12 @@ public class UserService {
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            PasswordEncoder encoder = new BCryptPasswordEncoder();
+            user.setPassword(encoder.encode(request.getPassword()));
+        }
+
         userMapper.updateUser(user, request);
 
         return userMapper.toUserResponse(userRepository.save(user));
@@ -85,16 +98,14 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public List<UserResponse> searchBySingleCriteria(String username, String email, String role) {
+    public List<UserResponse> searchBySingleCriteria(String username, String email) {
         List<User> users;
 
         if (username != null) {
             users = userRepository.findByUsernameContainingIgnoreCase(username);
         } else if (email != null) {
             users = userRepository.findByEmailContainingIgnoreCase(email);
-        } else if (role != null) {
-            users = userRepository.findByRoles_NameIgnoreCase(role);
-        } else {
+        }else {
             throw new IllegalArgumentException("No filter provided.");
         }
 
@@ -103,4 +114,13 @@ public class UserService {
                 .toList();
     }
 
+    public UserResponse changeUserStatus(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        user.setEnabled(user.getEnabled() == null || !user.getEnabled()); // Nếu null → mặc định là true
+        log.info("Toggled user ID {} to enabled = {}", id, user.getEnabled());
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
 }

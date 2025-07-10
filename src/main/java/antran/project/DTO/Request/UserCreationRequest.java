@@ -25,4 +25,6 @@ public class UserCreationRequest {
 
     @DobConstrain(min = 16, message = "INVALID_DOB")
     LocalDate dob;
+    String avatar; // Optional, can be null
+    Boolean enabled = true;
 }

@@ -16,4 +16,5 @@ public class UserUpdateRequest {
     String first_name;
     String last_name;
     LocalDate dob;
+    String avatar;
 }
