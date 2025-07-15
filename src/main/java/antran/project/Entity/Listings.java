@@ -30,7 +30,9 @@ public class Listings {
     Card card;
 
     BigDecimal sellingPrice;
+    LocalDateTime postedAt;
     LocalDateTime soldAt;
+    int quantity;
 
     @OneToMany(mappedBy = "listing")
     List<Transaction> transactions;

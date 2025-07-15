@@ -2,6 +2,7 @@ package antran.project.Controller;
 
 import antran.project.DTO.ApiResponse;
 import antran.project.DTO.Request.UserCreationRequest;
+import antran.project.DTO.Request.UserUpdatePasswordRequest;
 import antran.project.DTO.Request.UserUpdateRequest;
 import antran.project.DTO.Response.UserResponse;
 import antran.project.Entity.User;
@@ -109,4 +110,17 @@ public class UserController {
                 .result(userService.changeUserStatus(Long.valueOf(userId)))
                 .build();
     }
+
+    @PatchMapping("/{userId}/changePassword")
+    ApiResponse<UserResponse> changePassword(@PathVariable("userId") String userId,
+                                             @RequestBody UserUpdatePasswordRequest request) {
+
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.changePassword(
+                        Long.valueOf(userId),
+                        request.getOldPassword(),
+                        request.getNewPassword()
+                ))
+                .build();
+        }
 }

@@ -8,15 +8,19 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_KEY(1001, "Invalid message key", HttpStatus.BAD_REQUEST),
-    USER_EXISTED(1002, "User existed!", HttpStatus.BAD_REQUEST),
-    USERNAME_INVALID(1003, "Username must be at least {min} characters", HttpStatus.BAD_REQUEST),
-    PASSWORD_INVALID(1004, "Password must be at least {min} characters", HttpStatus.BAD_REQUEST),
-    USER_NOT_EXISTED(1005, "User not existed!", HttpStatus.NOT_FOUND),
+    USER_EXISTED(1002, "Người dùng đã tồn tại!", HttpStatus.BAD_REQUEST),
+    USERNAME_INVALID(1003, "Username phải có ít nhất {min} kí tự", HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(1004, "Password phải có ít nhất {min} kí tự", HttpStatus.BAD_REQUEST),
+    USER_NOT_EXISTED(1005, "Người dùng không tồn tại!", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1006, "Unthenticated", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
-    INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(1007, "Bạn không có quyền truy cập", HttpStatus.FORBIDDEN),
+    INVALID_DOB(1008, "Tuổi của bạn phải lớn hơn hoặc bằng {min}", HttpStatus.BAD_REQUEST),
     ROLE_NOT_FOUND(1009, "Role not found", HttpStatus.NOT_FOUND),
-    USER_DISABLED(1010, "User is disabled", HttpStatus.FORBIDDEN),
+    USER_DISABLED(1010, "Người dùng đã bị vô hiệu hóa", HttpStatus.FORBIDDEN),
+    OLD_PASSWORD_INCORRECT(1011, "Mật khẩu cũ không chính xác", HttpStatus.BAD_REQUEST),
+    LISTING_NOT_FOUND(2001, "Thẻ được đăng bán không tồn tại", HttpStatus.NOT_FOUND),
+    CANNOT_CANCEL_LISTING(2002, "Không thể hủy bán vì thẻ bài đã được mua", HttpStatus.BAD_REQUEST),
+    USER_CARD_NOT_FOUND(2003, "Không tìm thấy thẻ bài của người dùng", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

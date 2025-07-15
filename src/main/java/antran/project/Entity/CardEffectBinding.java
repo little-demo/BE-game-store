@@ -24,11 +24,12 @@ public class CardEffectBinding {
     CardEffect effect;
 
     @Enumerated(EnumType.STRING)
-    EffectTiming timing; // ON_PLAY, ON_START, ON_END
+    EffectTiming timing;
 
     public enum EffectTiming {
-        ON_PLAY,
-        ON_START,
-        ON_END
+        onPlay,
+        onDeath,
+        onEndOfTurn,
+        onStartOfTurn
     }
 }

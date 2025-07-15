@@ -3,17 +3,15 @@ package antran.project.DTO.Request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    String email;
-    String first_name;
-    String last_name;
-    LocalDate dob;
-    String avatar;
+public class ListingRequest {
+    Long cardId;
+    BigDecimal sellingPrice;
+    int quantity;
 }

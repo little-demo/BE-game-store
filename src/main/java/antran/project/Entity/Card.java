@@ -26,7 +26,10 @@ public class Card {
     cardType cardType;
 
     String imageUrl;
+    String overallImageUrl;
     int mana;
+    int attack;
+    int health;
     BigDecimal marketPrice;
 
     @OneToMany(mappedBy = "card")

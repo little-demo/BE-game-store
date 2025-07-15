@@ -18,7 +18,7 @@ public class CardEffect {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
+    String name;
     private int value;
     private Type type;
     private Target target;
@@ -26,27 +26,30 @@ public class CardEffect {
     @OneToMany(mappedBy = "effect")
     List<CardEffectBinding> cardEffectBindings;
 
-    public enum Type {
-        DAMAGE,
-        HEAL,
-        DRAW,
-        SUMMON,
-        TAUNT,
-        BUFF,
-        // SILENCE,
-        // DESTROY,
-        // TRANSFORM
+    public enum Type
+    {
+        Damage,
+        Heal,
+        Draw,
+        Summon,
+        Taunt,
+        Buff,
+    /*Silence,
+    Destroy,
+    Transform,*/
     }
-
-    public enum Target {
-        NONE,
-        SELF,
-        ENEMY,
-        FRIENDLY,
-        ALL,
-        ALL_MINIONS,
-        RANDOM_ENEMY_MINION,
-        CHOSEN_MINION,
-        CHOSEN_CHARACTER
+    public enum Target
+    {
+        None,
+        Self,
+        Enemy,
+        All,
+        AllMinions,
+        AllEnemyMinions,
+        AllAllyMinions,
+        RandomAllyMinion,
+        RandomEnemyMinion,
+        ChosenMinion,
+        ChosenTarget,
     }
 }

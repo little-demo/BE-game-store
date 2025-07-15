@@ -84,11 +84,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            PasswordEncoder encoder = new BCryptPasswordEncoder();
-            user.setPassword(encoder.encode(request.getPassword()));
-        }
-
         userMapper.updateUser(user, request);
 
         return userMapper.toUserResponse(userRepository.save(user));
@@ -121,6 +116,19 @@ public class UserService {
         user.setEnabled(user.getEnabled() == null || !user.getEnabled()); // Nếu null → mặc định là true
         log.info("Toggled user ID {} to enabled = {}", id, user.getEnabled());
 
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    public UserResponse changePassword(Long id, String oldPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new AppException(ErrorCode.OLD_PASSWORD_INCORRECT);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 }
