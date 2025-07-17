@@ -12,13 +12,14 @@ public interface ListingMapper {
     @Mapping(target = "card", ignore = true)
     @Mapping(target = "seller", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
-    @Mapping(target = "soldAt", ignore = true)
     @Mapping(target = "transactions", ignore = true)
     Listings toListing(ListingRequest request);
 
+    @Mapping(target = "sellerName", source = "seller.username")
     @Mapping(target = "cardId", source = "card.id")
     @Mapping(target = "cardName", source = "card.name")
     @Mapping(target = "cardImageUrl", source = "card.overallImageUrl")
-    @Mapping(target = "status", expression = "java(listing.getSoldAt() != null ? \"Đã bán\" : \"Đang bán\")")
+    @Mapping(target = "cardType", source = "card.cardType")
+    @Mapping(target = "postedAt", source = "postedAt")
     ListingResponse toListingResponse(Listings listing);
 }

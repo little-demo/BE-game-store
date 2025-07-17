@@ -2,17 +2,11 @@ package antran.project.Service;
 
 import antran.project.DTO.Request.ListingRequest;
 import antran.project.DTO.Response.ListingResponse;
-import antran.project.Entity.Card;
-import antran.project.Entity.Listings;
-import antran.project.Entity.User;
-import antran.project.Entity.UserCard;
+import antran.project.Entity.*;
 import antran.project.Exception.AppException;
 import antran.project.Exception.ErrorCode;
 import antran.project.Mapper.ListingMapper;
-import antran.project.Repository.CardRepository;
-import antran.project.Repository.ListingsRepository;
-import antran.project.Repository.UserCardRepository;
-import antran.project.Repository.UserRepository;
+import antran.project.Repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +33,7 @@ public class ListingService {
     CardRepository cardRepository;
 
     UserCardRepository userCardRepository;
+    TransactionRepository transactionRepo;
 
     public ListingResponse createListing(ListingRequest request) {
         var context = SecurityContextHolder.getContext();
@@ -64,7 +61,6 @@ public class ListingService {
         listing.setCard(card);
         listing.setSeller(user);
         listing.setPostedAt(LocalDateTime.now());
-        listing.setSoldAt(null);
 
         listingsRepository.save(listing);
 
@@ -79,7 +75,15 @@ public class ListingService {
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        List<Listings> listings = listingsRepository.findBySeller(user);
+        List<Listings> listings = listingsRepository.findBySellerAndIsCancelledFalse(user);
+
+        return listings.stream()
+                .map(listingMapper::toListingResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ListingResponse> getAllListings() {
+        List<Listings> listings = listingsRepository.findByIsCancelledFalseAndQuantityGreaterThan(0);
 
         return listings.stream()
                 .map(listingMapper::toListingResponse)
@@ -97,9 +101,8 @@ public class ListingService {
         Listings listing = listingsRepository.findById(listingId)
                 .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
 
-        // Chỉ được hủy nếu chưa ai mua
-        if (listing.getSoldAt() != null || !listing.getSeller().getId().equals(user.getId())) {
-            throw new AppException(ErrorCode.CANNOT_CANCEL_LISTING);
+        if (Boolean.TRUE.equals(listing.isCancelled())) {
+            throw new AppException(ErrorCode.LISTING_ALREADY_CANCELLED);
         }
 
         // Trả lại thẻ về cho user
@@ -109,6 +112,66 @@ public class ListingService {
         userCard.setQuantity(userCard.getQuantity() + listing.getQuantity());
         userCardRepository.save(userCard);
 
-        listingsRepository.delete(listing);
+        listing.setCancelled(true);
+        listingsRepository.save(listing);
+    }
+
+    public void buyCard(Long listingId, int quantity) {
+        try {
+            Listings listing = listingsRepository.findById(listingId)
+                    .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
+
+            var context = SecurityContextHolder.getContext();
+            String username = context.getAuthentication().getName();
+
+            User buyer = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            User seller = listing.getSeller();
+            Card card = listing.getCard();
+
+            if (listing.getQuantity() < quantity) {
+                throw new AppException(ErrorCode.NOT_ENOUGH_CARD_QUANTITY);
+            }
+
+            BigDecimal totalAmount = listing.getSellingPrice().multiply(BigDecimal.valueOf(quantity));
+            if (buyer.getBalance() == null || buyer.getBalance().compareTo(totalAmount) < 0) {
+                throw new AppException(ErrorCode.NOT_ENOUGH_BALANCE);
+            }
+
+            listing.setQuantity(listing.getQuantity() - quantity);
+
+            buyer.setBalance(buyer.getBalance().subtract(totalAmount));
+            seller.setBalance(seller.getBalance().add(totalAmount));
+
+            Transaction tx = new Transaction();
+            tx.setTransactionCode("TX-" + System.currentTimeMillis());
+            tx.setBuyer(buyer);
+            tx.setSeller(seller);
+            tx.setListing(listing);
+            tx.setCard(card);
+            tx.setAmount(totalAmount);
+            tx.setTransactionDate(LocalDateTime.now());
+            tx.setQuantity(quantity);
+            transactionRepo.save(tx);
+
+            Optional<UserCard> existing = userCardRepository.findByUserAndCard(buyer, card);
+            if (existing.isPresent()) {
+                existing.get().setQuantity(existing.get().getQuantity() + quantity);
+            } else {
+                UserCard newCard = new UserCard();
+                newCard.setUser(buyer);
+                newCard.setCard(card);
+                newCard.setQuantity(quantity);
+                userCardRepository.save(newCard);
+            }
+
+            listingsRepository.save(listing);
+            userRepository.save(buyer);
+            userRepository.save(seller);
+
+        } catch (Exception e) {
+            log.error("Lỗi khi mua thẻ: " + e.getMessage(), e);
+            throw e;
+        }
     }
 }

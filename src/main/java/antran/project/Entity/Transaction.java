@@ -37,6 +37,7 @@ public class Transaction {
     @JoinColumn(name = "card_id", nullable = false)
     Card card;
 
+    int quantity;
     BigDecimal amount;
     LocalDateTime transactionDate;
 }

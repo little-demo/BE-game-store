@@ -21,6 +21,9 @@ public enum ErrorCode {
     LISTING_NOT_FOUND(2001, "Thẻ được đăng bán không tồn tại", HttpStatus.NOT_FOUND),
     CANNOT_CANCEL_LISTING(2002, "Không thể hủy bán vì thẻ bài đã được mua", HttpStatus.BAD_REQUEST),
     USER_CARD_NOT_FOUND(2003, "Không tìm thấy thẻ bài của người dùng", HttpStatus.NOT_FOUND),
+    NOT_ENOUGH_BALANCE(2004, "Số dư không đủ để thực hiện giao dịch", HttpStatus.BAD_REQUEST),
+    NOT_ENOUGH_CARD_QUANTITY(2005, "Số lượng thẻ bài không đủ để thực hiện giao dịch", HttpStatus.BAD_REQUEST),
+    LISTING_ALREADY_CANCELLED(2006, "Thẻ bài đã được hủy bán trước đó", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

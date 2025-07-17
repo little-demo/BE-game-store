@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ListingResponse {
     Long id;
+    String sellerName;
     Long cardId;
     String cardName;
     String cardImageUrl;
@@ -20,7 +21,11 @@ public class ListingResponse {
     int quantity;
     LocalDateTime postedAt;
     LocalDateTime soldAt;
+    String cardType;
+    boolean isCancelled = false;
     public String getStatus() {
-        return soldAt != null ? "Đã bán" : "Đang bán";
+        if (isCancelled) return "Đã hủy";
+        if (quantity == 0) return "Đã bán";
+        return "Đang bán";
     }
 }

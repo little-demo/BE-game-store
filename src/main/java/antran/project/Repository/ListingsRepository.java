@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ListingsRepository extends JpaRepository<Listings, Long> {
     List<Listings> findBySeller(User seller);
+    List<Listings> findByIsCancelledFalseAndQuantityGreaterThan(int qty);
+    List<Listings> findBySellerAndIsCancelledFalse(User seller);
 }

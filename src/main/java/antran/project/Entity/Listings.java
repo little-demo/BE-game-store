@@ -31,8 +31,8 @@ public class Listings {
 
     BigDecimal sellingPrice;
     LocalDateTime postedAt;
-    LocalDateTime soldAt;
     int quantity;
+    boolean isCancelled = false;
 
     @OneToMany(mappedBy = "listing")
     List<Transaction> transactions;
