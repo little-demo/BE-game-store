@@ -1,6 +1,7 @@
 package antran.project.Controller;
 
 import antran.project.DTO.ApiResponse;
+import antran.project.DTO.Response.TransactionResponse;
 import antran.project.Service.TransactionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,19 @@ import java.util.List;
 public class TransactionController {
     TransactionService transactionService;
 
+    @GetMapping("/myTransactions")
+    public ApiResponse<List<TransactionResponse>> getMyTransactions() {
+        List<TransactionResponse> transactions = transactionService.getMyTransactions();
+        return ApiResponse.<List<TransactionResponse>>builder()
+                .result(transactions)
+                .message("Fetched all transactions successfully")
+                .build();
+    }
+
     @GetMapping
-    public ApiResponse<List<?>> getMyTransactions() {
-        List<?> transactions = transactionService.getMyTransactions();
-        return ApiResponse.<List<?>>builder()
+    public ApiResponse<List<TransactionResponse>> getAllTransactions() {
+        List<TransactionResponse> transactions = transactionService.getAllTransactions();
+        return ApiResponse.<List<TransactionResponse>>builder()
                 .result(transactions)
                 .message("Fetched all transactions successfully")
                 .build();

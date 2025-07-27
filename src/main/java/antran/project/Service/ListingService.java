@@ -35,6 +35,8 @@ public class ListingService {
     UserCardRepository userCardRepository;
     TransactionRepository transactionRepo;
 
+    NotificationService notificationService;
+
     public ListingResponse createListing(ListingRequest request) {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
@@ -168,6 +170,18 @@ public class ListingService {
             listingsRepository.save(listing);
             userRepository.save(buyer);
             userRepository.save(seller);
+
+            // Gửi thông báo cho người bán
+            String notifTitle = "Thẻ bài đã được bán!";
+            String notifMessage = String.format("Thẻ '%s' của bạn đã được mua bởi '%s' (%d thẻ)",
+                    card.getName(), buyer.getUsername(), quantity);
+
+            notificationService.createNotificationForUser(
+                    seller,
+                    notifTitle,
+                    notifMessage,
+                    Notification.NotificationType.TRANSACTION
+            );
 
         } catch (Exception e) {
             log.error("Lỗi khi mua thẻ: " + e.getMessage(), e);

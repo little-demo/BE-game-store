@@ -4,7 +4,10 @@ import antran.project.DTO.ApiResponse;
 import antran.project.DTO.Request.BuyCardRequest;
 import antran.project.DTO.Request.ListingRequest;
 import antran.project.DTO.Response.ListingResponse;
+import antran.project.Entity.Listings;
+import antran.project.Repository.ListingsRepository;
 import antran.project.Service.ListingService;
+import antran.project.Service.NotificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,7 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ListingController {
+    ListingsRepository listingsRepository;
     ListingService listingService;
+    NotificationService notificationService;
 
     @PostMapping
     ApiResponse<ListingResponse> createListing(@RequestBody ListingRequest request) {
@@ -64,6 +69,7 @@ public class ListingController {
         log.info("Buying card. ListingId: {}, Quantity: {}", listingId, request.getQuantity());
 
         listingService.buyCard(listingId, request.getQuantity());
+
         return ApiResponse.<String>builder()
                 .result("Success")
                 .message("Mua thẻ bài thành công")

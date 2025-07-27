@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -22,5 +23,6 @@ public class UserResponse {
     LocalDate dob;
     String avatar;
     Boolean enabled;
+    BigDecimal balance;
     Set<Role> roles;
 }

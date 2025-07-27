@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,8 @@ public class UserService {
         Set<Role> roles = new HashSet<>();
         roles.add(userRole);
         user.setRoles(roles);
+        user.setBalance(BigDecimal.ZERO);
+
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -62,7 +65,7 @@ public class UserService {
 
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
+        log.info("Balance of user {}: {}", user.getUsername(), user.getBalance());
         return userMapper.toUserResponse(user);
     }
 

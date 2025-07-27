@@ -24,6 +24,8 @@ public enum ErrorCode {
     NOT_ENOUGH_BALANCE(2004, "Số dư không đủ để thực hiện giao dịch", HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_CARD_QUANTITY(2005, "Số lượng thẻ bài không đủ để thực hiện giao dịch", HttpStatus.BAD_REQUEST),
     LISTING_ALREADY_CANCELLED(2006, "Thẻ bài đã được hủy bán trước đó", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(3001, "Email đã được sử dụng", HttpStatus.BAD_REQUEST),
+    NOTIFICATION_NOT_FOUND(4001, "Thông báo không tồn tại", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

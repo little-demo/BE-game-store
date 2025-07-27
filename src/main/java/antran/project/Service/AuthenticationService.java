@@ -1,16 +1,16 @@
 package antran.project.Service;
 
-import antran.project.DTO.Request.AuthenticationRequest;
-import antran.project.DTO.Request.IntrospectRequest;
-import antran.project.DTO.Request.LogoutRequest;
-import antran.project.DTO.Request.RefreshTokenRequest;
+import antran.project.DTO.Request.*;
 import antran.project.DTO.Response.AuthenticationResponse;
 import antran.project.DTO.Response.IntrospectResponse;
 import antran.project.Entity.InvalidatedToken;
+import antran.project.Entity.Role;
+import antran.project.Mapper.UserMapper;
 import antran.project.Repository.InvalidatedTokenRepository;
 import antran.project.Entity.User;
 import antran.project.Exception.AppException;
 import antran.project.Exception.ErrorCode;
+import antran.project.Repository.RoleRepository;
 import antran.project.Repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -28,12 +28,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -41,7 +40,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
+    UserMapper userMapper;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    RoleRepository roleRepository;
 
     @NonFinal // Lombok annotation to disable final for this field
     @Value("${jwt.signerKey}")
@@ -135,6 +136,38 @@ public class AuthenticationService {
             log.error("Token already expired");
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+    }
+
+    public AuthenticationResponse register(UserCreationRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        User user = userMapper.toUser(request);
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(userRole);
+        user.setRoles(roles);
+        user.setBalance(BigDecimal.ZERO);
+
+        userRepository.save(user);
+
+        String token = generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .isAuthenticated(true)
+                .build();
     }
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {

@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,8 +44,8 @@ public class User {
     @OneToMany(mappedBy = "seller")
     List<Transaction> sales;
 
-    @OneToMany(mappedBy = "user")
-    List<Notification> notifications;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    Set<UserNotification> userNotifications = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
     List<UserCard> ownedCards;
