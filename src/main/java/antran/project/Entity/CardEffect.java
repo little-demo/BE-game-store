@@ -19,9 +19,10 @@ public class CardEffect {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
-    private int value;
-    private Type type;
-    private Target target;
+    int value;
+    Type type;
+    Target target;
+    String animationId;
 
     @OneToMany(mappedBy = "effect")
     List<CardEffectBinding> cardEffectBindings;
@@ -43,13 +44,16 @@ public class CardEffect {
         None,
         Self,
         Enemy,
+        CurrentMinion,
         All,
+        AllAlly,
+        AllEnemy,
         AllMinions,
         AllEnemyMinions,
         AllAllyMinions,
         RandomAllyMinion,
         RandomEnemyMinion,
         ChosenMinion,
-        ChosenTarget,
+        ChosenTarget
     }
 }

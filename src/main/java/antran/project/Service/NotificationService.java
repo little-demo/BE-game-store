@@ -1,5 +1,6 @@
 package antran.project.Service;
 
+import antran.project.DTO.Request.NotificationDTO;
 import antran.project.DTO.Request.NotificationRequest;
 import antran.project.DTO.Request.NotificationUpdateRequest;
 import antran.project.DTO.Response.NotificationResponse;
@@ -36,6 +37,8 @@ public class NotificationService {
 
     NotificationMapper notificationMapper;
 
+    RealtimeService realtimeService;
+
     public NotificationResponse createNotification(NotificationRequest request) {
         List<User> allUsers = userRepository.findAll();
 
@@ -69,9 +72,14 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getAllNotificationsForAdmin() {
-        List<Notification> systemNotifications = notificationRepository.findByType(Notification.NotificationType.SYSTEM);
+        List<Notification.NotificationType> excludedTypes = List.of(
+                Notification.NotificationType.TRANSACTION,
+                Notification.NotificationType.LISTING
+        );
 
-        return systemNotifications.stream()
+        List<Notification> notifications = notificationRepository.findByTypeNotIn(excludedTypes);
+
+        return notifications.stream()
                 .map(notificationMapper::toNotificationResponse)
                 .toList();
     }
@@ -119,7 +127,15 @@ public class NotificationService {
                 .build();
 
         userNotificationRepository.save(userNotification);
+        // 3. Map DTO
+        NotificationDTO dto = NotificationMapper.toDTO(notification, userNotification);
 
+        // 4. Gửi WebSocket
+        try {
+            realtimeService.sendNotification(recipient.getUsername(), dto);
+        } catch (Exception e) {
+            log.error("Failed to send realtime notification", e);
+        }
         return notification;
     }
 

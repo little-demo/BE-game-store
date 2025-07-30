@@ -61,6 +61,7 @@ public class VnpayService {
                 .user(user)
                 .orderId(vnp_TxnRef)
                 .amountVND(amount / 100)
+                .diamonds(paymentRequest.getDiamonds())
                 .status(PaymentTransaction.PaymentStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -136,7 +137,7 @@ public class VnpayService {
 
         if ("00".equals(responseCode) && "00".equals(transactionStatus)) {
             Long amountVND = Long.parseLong(amountStr) / 100;
-            int diamonds = (int) (amountVND / 1000);
+            int diamonds = transaction.getDiamonds();
 
             // Cập nhật transaction
             transaction.setAmountVND(amountVND);
@@ -195,6 +196,17 @@ public class VnpayService {
                 .stream()
                 .map(paymentTransactionMapper::toPaymentTransactionResponse)
                 .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getRevenueByDate() {
+        List<Object[]> rawData = paymentTransactionRepository.getRevenueByDateRaw();
+
+        return rawData.stream().map(row -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("date", row[0]);  // LocalDate
+            map.put("totalRevenue", row[1]); // BigDecimal or Long (tùy DB)
+            return map;
+        }).collect(Collectors.toList());
     }
 }
 

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Transactional
 public class ListingService {
     ListingsRepository listingsRepository;
     ListingMapper listingMapper;
@@ -51,11 +52,12 @@ public class ListingService {
         UserCard userCard = userCardRepository.findByUserAndCard(user, card)
                 .orElseThrow(() -> new RuntimeException("Not enough cards"));
 
-        if (userCard.getQuantity() < request.getQuantity()) {
+        int availableToSell = userCard.getQuantity() - userCard.getDeckQuantity() - userCard.getMarketQuantity();
+        if (availableToSell < request.getQuantity()) {
             throw new RuntimeException("Not enough cards to create listing");
         }
 
-        userCard.setQuantity(userCard.getQuantity() - request.getQuantity());
+        userCard.setMarketQuantity(userCard.getMarketQuantity() + request.getQuantity());
         userCardRepository.save(userCard);
 
         // Tạo listing
@@ -111,7 +113,7 @@ public class ListingService {
         UserCard userCard = userCardRepository.findByUserAndCard(user, listing.getCard())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_CARD_NOT_FOUND));
 
-        userCard.setQuantity(userCard.getQuantity() + listing.getQuantity());
+        userCard.setMarketQuantity(userCard.getMarketQuantity() - listing.getQuantity());
         userCardRepository.save(userCard);
 
         listing.setCancelled(true);
@@ -141,6 +143,13 @@ public class ListingService {
             }
 
             listing.setQuantity(listing.getQuantity() - quantity);
+
+            // Trừ số lượng đã bán khỏi marketQuantity
+            UserCard sellerCard = userCardRepository.findByUserAndCard(seller, card)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_CARD_NOT_FOUND));
+            sellerCard.setMarketQuantity(sellerCard.getMarketQuantity() - quantity);
+            sellerCard.setQuantity(sellerCard.getQuantity() - quantity);
+            userCardRepository.save(sellerCard);
 
             buyer.setBalance(buyer.getBalance().subtract(totalAmount));
             seller.setBalance(seller.getBalance().add(totalAmount));

@@ -41,7 +41,7 @@ public class Card {
     @OneToMany(mappedBy = "card")
     List<UserCard> ownedByUsers;
 
-    @OneToMany(mappedBy = "card")
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     List<CardEffectBinding> cardEffectBindings;
 
     public enum cardType {

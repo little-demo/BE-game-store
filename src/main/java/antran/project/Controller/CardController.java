@@ -2,6 +2,7 @@ package antran.project.Controller;
 
 import antran.project.DTO.ApiResponse;
 import antran.project.DTO.Request.CardCreationRequest;
+import antran.project.DTO.Request.DeckUpdateRequest;
 import antran.project.DTO.Response.CardResponse;
 import antran.project.DTO.Response.UserCardResponse;
 import antran.project.Service.CardService;
@@ -64,6 +65,29 @@ public class CardController {
     ApiResponse<List<UserCardResponse>> getMyCards() {
         return ApiResponse.<List<UserCardResponse>>builder()
                 .result(cardService.getUserCards())
+                .build();
+    }
+
+    @PostMapping("/deck/add")
+    ApiResponse<String> addCardToDeck(@RequestBody DeckUpdateRequest request) {
+        cardService.addCardToDeck(request.getCardId(), request.getQuantity());
+        return ApiResponse.<String>builder()
+                .result("Đã thêm thẻ vào deck")
+                .build();
+    }
+
+    @PostMapping("/deck/remove")
+    ApiResponse<String> removeCardFromDeck(@RequestBody DeckUpdateRequest request) {
+        cardService.removeCardFromDeck(request.getCardId());
+        return ApiResponse.<String>builder()
+                .result("Đã gỡ thẻ khỏi deck")
+                .build();
+    }
+
+    @GetMapping("/deck")
+    ApiResponse<List<UserCardResponse>> getDeckCards() {
+        return ApiResponse.<List<UserCardResponse>>builder()
+                .result(cardService.getDeckCards())
                 .build();
     }
 }

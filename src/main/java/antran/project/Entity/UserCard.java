@@ -25,5 +25,7 @@ public class UserCard {
     @JoinColumn(name = "card_id", nullable = false)
     Card card;
 
-    int quantity;
+    int quantity; //tổng số thẻ của 1 thẻ nguời dùng đang sở hữu
+    int deckQuantity; //số lượng thẻ trong bộ bài của người dùng
+    int marketQuantity; //số lượng thẻ đang được rao bán trên thị trường, nếu không rao bán thì để 0
 }

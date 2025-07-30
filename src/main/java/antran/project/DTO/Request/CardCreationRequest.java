@@ -1,9 +1,11 @@
 package antran.project.DTO.Request;
 
+import antran.project.Entity.CardEffectBinding;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -20,4 +22,12 @@ public class CardCreationRequest {
     int attack;
     int health;
     BigDecimal marketPrice;
+
+    List<EffectAssignment> effects; // ✅ danh sách effect và timing
+
+    @Data
+    public static class EffectAssignment {
+        Long effectId;
+        CardEffectBinding.EffectTiming timing;
+    }
 }

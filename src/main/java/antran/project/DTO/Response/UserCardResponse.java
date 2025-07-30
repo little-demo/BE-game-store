@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 public class UserCardResponse {
     Long userCardId;
     int quantity;
+    int deckQuantity;
+    int marketQuantity;
 
     Long cardId;
     String cardName;

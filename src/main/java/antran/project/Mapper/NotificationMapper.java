@@ -1,5 +1,6 @@
 package antran.project.Mapper;
 
+import antran.project.DTO.Request.NotificationDTO;
 import antran.project.DTO.Request.NotificationRequest;
 import antran.project.DTO.Response.NotificationResponse;
 import antran.project.Entity.Notification;
@@ -26,4 +27,16 @@ public interface NotificationMapper {
     @Mapping(source = "createdAt", target = "createdAt")
     @Mapping(target = "isRead", ignore = true) // Không có thông tin đọc cho admin
     NotificationResponse toNotificationResponse(Notification notification);
+
+    public static NotificationDTO toDTO(Notification notification, UserNotification userNotification) {
+        return NotificationDTO.builder()
+                .id(notification.getId())
+                .title(notification.getTitle())
+                .message(notification.getMessage())
+                .type(notification.getType().name())
+                .createdAt(notification.getCreatedAt())
+                .isRead(false)
+                .userId(userNotification.getUser().getId())
+                .build();
+    }
 }

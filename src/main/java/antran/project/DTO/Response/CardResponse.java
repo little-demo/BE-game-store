@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +22,16 @@ public class CardResponse {
     int attack;
     int health;
     BigDecimal marketPrice;
+
+    List<EffectWithTiming> effects; // Thêm danh sách hiệu ứng + thời điểm
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class EffectWithTiming {
+        Long effectId;
+        String effectName;
+        String timing;
+    }
 }
